@@ -1,11 +1,15 @@
 package com.acasloa946.cartamsalta
 
+import android.widget.Toast
 import com.acasloa946.cartamsalta.Screens.UIControl
 
 class Baraja {
+
     companion object {
+        lateinit var Carta : Carta
         var listaCartas = arrayListOf<Carta>()
         var objetoControl = UIControl()
+        var ultimaCarta = false
 
         fun crearBaraja() {
             var contFotos = 4
@@ -32,14 +36,25 @@ class Baraja {
                     }
                 }
             }
+
         }
         fun barajar() {
             listaCartas.shuffle()
         }
         fun dameCarta():Carta {
-            val Carta = listaCartas.last()
-            listaCartas.remove(Carta)
+            if (listaCartas.isNotEmpty()){
+                listaCartas.remove(listaCartas.last())
+                Carta = listaCartas.last()
+                if (listaCartas.size==1) {
+                    ultimaCarta = true
+                }
+                return Carta
+            }
+
             return Carta
+        }
+        fun borrarBaraja() {
+            listaCartas.clear()
         }
     }
 }

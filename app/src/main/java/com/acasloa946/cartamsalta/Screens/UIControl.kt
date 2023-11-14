@@ -1,7 +1,7 @@
 package com.acasloa946.cartamsalta.Screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -9,19 +9,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.acasloa946.cartamsalta.Baraja
-import com.acasloa946.cartamsalta.Carta
 import com.acasloa946.cartamsalta.R
-import kotlin.random.Random
+
 class UIControl {
 
     val listaDeResources = mutableListOf<Int>(
@@ -81,49 +86,85 @@ class UIControl {
 
         )
 
-    var imagenID : Int = R.drawable.facedown
 
 
 
     @Composable
     fun Inicio() {
+        val context = LocalContext.current
+        var imagenID by rememberSaveable { mutableStateOf(R.drawable.facedown) }
+
         Column(
-            modifier = Modifier
+            Modifier
                 .fillMaxSize()
-                .background(
-                    Color(0xfffffffe)
-                ),
+                .paint(painterResource(id = R.drawable.mat),
+                    contentScale = ContentScale.FillHeight),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            //Crea la baraja el iniciarse el programa
-            Baraja.crearBaraja()
-            Baraja.barajar()
-            CrearImagen()
+            
+
+            CrearImagen(imagenID)
             Row (
                 modifier = Modifier.padding(top = 30.dp)
             ) {
-                Botones()
+                Botones(
+                    onClickDameCarta = {
+                        if (imagenID == R.drawable.facedown) {
+                            imagenID= Baraja.listaCartas.last().IdDrawable
+                        }
+                        else if (Baraja.ultimaCarta) {
+                            Baraja.ultimaCarta = false
+                            Toast.makeText(context,"Última carta",Toast.LENGTH_SHORT).show()
+                        }
+                        else{
+                            val cartaNueva = Baraja.dameCarta()
+                            imagenID = cartaNueva.IdDrawable
+                        }
+
+                    },
+                    onClickReiniciar = {
+                        Baraja.borrarBaraja()
+                        Baraja.crearBaraja()
+                        Baraja.barajar()
+                        imagenID = R.drawable.facedown
+                    }
+                )
             }
 
         }
     }
 
     @Composable
-    fun CrearImagen() {
-        Image(
-            painter = painterResource(id = imagenID),
-            contentDescription = null,
-            modifier = Modifier
-                .size(350.dp)
-        )
-
+    fun CrearImagen(imagenID:Int) {
+        if (imagenID==R.drawable.as1){
+            Image(
+                painter = painterResource(id = imagenID),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(350.dp)
+            )
+        }
+        else {
+            Image(
+                painter = painterResource(id = imagenID),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(350.dp)
+            )
+        }
     }
     @Composable
-    fun Botones() {
+    fun Botones(
+        onClickDameCarta : () -> Unit,
+        onClickReiniciar : () -> Unit
+    ) {
         Button(onClick = {
-            val cartaNueva = Baraja.dameCarta()
-            imagenID = cartaNueva.IdDrawable
+            if (Baraja.listaCartas.size==1 || Baraja.listaCartas.isEmpty()) {
+                Baraja.crearBaraja()
+                Baraja.barajar()
+            }
+            onClickDameCarta()
         },
             modifier = Modifier.padding(end = 5.dp),
             colors = ButtonDefaults.buttonColors(Color.Red)
@@ -131,7 +172,7 @@ class UIControl {
             Text(text = "Dame carta",
                 color = Color.Black)
         }
-        Button(onClick = { /*TODO*/ },
+        Button(onClick = { onClickReiniciar() },
             colors = ButtonDefaults.buttonColors(Color.Red)) {
             Text(text = "Reiniciar",
                 color = Color.Black)
