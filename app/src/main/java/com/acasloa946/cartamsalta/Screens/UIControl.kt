@@ -2,7 +2,9 @@ package com.acasloa946.cartamsalta.Screens
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,7 +25,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.acasloa946.cartamsalta.Baraja
 import com.acasloa946.cartamsalta.R
 
@@ -87,8 +92,6 @@ class UIControl {
         )
 
 
-
-
     @Composable
     fun Inicio() {
         val context = LocalContext.current
@@ -97,27 +100,28 @@ class UIControl {
         Column(
             Modifier
                 .fillMaxSize()
-                .paint(painterResource(id = R.drawable.mat),
-                    contentScale = ContentScale.FillHeight),
+                .paint(
+                    painterResource(id = R.drawable.mat),
+                    contentScale = ContentScale.FillHeight
+                ),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            
-
+            if (imagenID!=R.drawable.facedown) {
+                ImagenBaraja(Baraja.listaCartas.size)
+            }
             CrearImagen(imagenID)
-            Row (
+            Row(
                 modifier = Modifier.padding(top = 30.dp)
             ) {
                 Botones(
                     onClickDameCarta = {
                         if (imagenID == R.drawable.facedown) {
-                            imagenID= Baraja.listaCartas.last().IdDrawable
-                        }
-                        else if (Baraja.ultimaCarta) {
+                            imagenID = Baraja.listaCartas.last().IdDrawable
+                        } else if (Baraja.ultimaCarta) {
                             Baraja.ultimaCarta = false
-                            Toast.makeText(context,"Última carta",Toast.LENGTH_SHORT).show()
-                        }
-                        else{
+                            Toast.makeText(context, "Última carta", Toast.LENGTH_SHORT).show()
+                        } else {
                             val cartaNueva = Baraja.dameCarta()
                             imagenID = cartaNueva.IdDrawable
                         }
@@ -136,16 +140,37 @@ class UIControl {
     }
 
     @Composable
-    fun CrearImagen(imagenID:Int) {
-        if (imagenID==R.drawable.as1){
+    fun ImagenBaraja(numb : Int) {
+        Box (
+        contentAlignment = Alignment.Center
+        ){
+
+            Image(
+                painter = painterResource(id = R.drawable.facedown),
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(bottom = 50.dp)
+            )
+            Text(text = "${numb}",
+                textAlign = TextAlign.Center,
+                color = Color.White,
+                fontSize = 30.sp,
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier.background(Color.Black)
+            )
+        }
+    }
+
+    @Composable
+    fun CrearImagen(imagenID: Int) {
+        if (imagenID == R.drawable.as1) {
             Image(
                 painter = painterResource(id = imagenID),
                 contentDescription = null,
                 modifier = Modifier
                     .size(350.dp)
             )
-        }
-        else {
+        } else {
             Image(
                 painter = painterResource(id = imagenID),
                 contentDescription = null,
@@ -154,28 +179,36 @@ class UIControl {
             )
         }
     }
+
     @Composable
     fun Botones(
-        onClickDameCarta : () -> Unit,
-        onClickReiniciar : () -> Unit
+        onClickDameCarta: () -> Unit,
+        onClickReiniciar: () -> Unit
     ) {
-        Button(onClick = {
-            if (Baraja.listaCartas.size==1 || Baraja.listaCartas.isEmpty()) {
-                Baraja.crearBaraja()
-                Baraja.barajar()
-            }
-            onClickDameCarta()
-        },
+        Button(
+            onClick = {
+                if (Baraja.listaCartas.size == 1 || Baraja.listaCartas.isEmpty()) {
+                    Baraja.crearBaraja()
+                    Baraja.barajar()
+                }
+                onClickDameCarta()
+            },
             modifier = Modifier.padding(end = 5.dp),
             colors = ButtonDefaults.buttonColors(Color.Red)
         ) {
-            Text(text = "Dame carta",
-                color = Color.Black)
+            Text(
+                text = "Dame carta",
+                color = Color.Black
+            )
         }
-        Button(onClick = { onClickReiniciar() },
-            colors = ButtonDefaults.buttonColors(Color.Red)) {
-            Text(text = "Reiniciar",
-                color = Color.Black)
+        Button(
+            onClick = { onClickReiniciar() },
+            colors = ButtonDefaults.buttonColors(Color.Red)
+        ) {
+            Text(
+                text = "Reiniciar",
+                color = Color.Black
+            )
         }
     }
 }
