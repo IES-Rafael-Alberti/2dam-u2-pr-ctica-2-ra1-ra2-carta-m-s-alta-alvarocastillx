@@ -34,8 +34,12 @@ import com.acasloa946.cartamsalta.Carta
 import com.acasloa946.cartamsalta.R
 
 var cartaNueva : Carta = Carta()
-class UIControl {
 
+/**
+ * Clase UIControl -> se encarga de controlar la interfaz
+ */
+class UIControl {
+    //lista de todas las fotos ordenadas según necesito para crear baraja (primero ases y después cada numero de todos los palos)
     val listaDeResources = mutableListOf(
         R.drawable.as1,
         R.drawable.as2,
@@ -89,19 +93,19 @@ class UIControl {
         R.drawable.c26,
         R.drawable.c39,
         R.drawable.c52,
-
-
         )
 
 
-
+    /**
+     * Función que se ejecuta cuando se inicializa la aplicación.
+     */
     @Composable
     fun Inicio() {
         val context = LocalContext.current
         var imagenID by rememberSaveable { mutableStateOf(R.drawable.facedown) }
 
 
-
+        //Columna principal
         Column(
             Modifier
                 .fillMaxSize()
@@ -112,32 +116,43 @@ class UIControl {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            //Imagen de la baraja con el texto de las cartas que quedan si la imagen que se esta mostrando no es la carta boca abajo.
             if (imagenID != R.drawable.facedown) {
                 ImagenBaraja(Baraja.listaCartas.size)
             }
+            //Inicia función crearImagen (Imagen de la carta)
             CrearImagen(imagenID,cartaNueva)
+            //Row para los botones
             Row(
                 modifier = Modifier.padding(top = 30.dp)
             ) {
+                //Funcion para los botones
                 Botones(
                     onClickDameCarta = {
+                        // si la imagen que se esta mostrando es la carta boca abajo y se le da al botón damecarta se cambia la imagenID por la de la última carta
                         if (imagenID == R.drawable.facedown) {
                             imagenID = Baraja.listaCartas.last().IdDrawable
                         }
+                        //si es la última carta y se pulsa el botón se muestra un toast
                         else if (Baraja.ultimaCarta) {
                             Baraja.ultimaCarta = false
                             Toast.makeText(context, "Esta es la última carta", Toast.LENGTH_SHORT)
                                 .show()
                         }
+                        //si no se esta mostrando la carta boca abajo ni es la última carta se accede al método dameCarta y se cambia el imagenID.
                         else {
                             cartaNueva = Baraja.dameCarta()
                             imagenID = cartaNueva.IdDrawable
                         }
                     },
                     onClickReiniciar = {
+                        //borra baraja
                         Baraja.borrarBaraja()
+                        //crea baraja
                         Baraja.crearBaraja()
+                        //baraja
                         Baraja.barajar()
+                        //se cambia el imagenIDÇ
                         imagenID = R.drawable.facedown
                     }
                 )
@@ -146,6 +161,10 @@ class UIControl {
         }
     }
 
+    /**
+     * Función para mostrar una imagen de la baraja con un texto mostrando las cartas que quedan.
+     * Solo se entra cuando la imagen que se está mostrando es la carta boca abajo.
+     */
     @Composable
     fun ImagenBaraja(numb: Int) {
         Box(
@@ -170,6 +189,11 @@ class UIControl {
 
     }
 
+    /**
+     * Función que crea la imagen de la carta
+     * @param imagenID -> id de la imagen para representarla en el painterResource
+     * @param Carta -> carta actual para el texto que muestra su nombre y palo
+     */
     @Composable
     fun CrearImagen(imagenID: Int, Carta:Carta) {
         if (imagenID!=R.drawable.facedown) {
@@ -192,6 +216,12 @@ class UIControl {
     }
 
 }
+
+/**
+ * Función para dibujar los botones
+ * @param onClickDameCarta -> función que se ejecuta cuando se le da al botón dameCarta
+ * @param onClickReiniciar -> función que se ejecuta cuando se le da al botón reiniciar
+ */
 @Composable
 
 fun Botones(
